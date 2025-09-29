@@ -82,22 +82,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'erp_padaria.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+DB_BACKEND = os.getenv("DB_BACKEND", "sqlite").lower()
+if DB_BACKEND == "sqlserver":
+    DATABASES = {
+        "default": {
+            "ENGINE": "mssql",
+            "NAME": os.getenv("DB_NAME", "NomeDoBanco"),
+            "USER": os.getenv("DB_USER", "usuario_sql"),
+            "PASSWORD": os.getenv("DB_PASS", "senha"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "1433"),
+            "OPTIONS": {
+                "driver": os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server"),
+                "extra_params": os.getenv("DB_EXTRA", "TrustServerCertificate=yes;"),
+            },
+        }
     }
-}
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [

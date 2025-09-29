@@ -24,8 +24,8 @@ def dashboard(request):
     total_vendas = Venda.objects.aggregate(total_vendas=Sum('valor_total'))['total_vendas'] or Decimal('0.00')
     if total_vendas == 0:
         total_vendas = Venda.objects.annotate(
-            valor_total=F('items__quantidade') * F('items__produto__preco_venda')
-        ).aggregate(total_vendas=Sum('valor_total'))['total_vendas'] or Decimal('0.00')
+            valor_calculado=F('items__quantidade') * F('items__produto__preco_venda')
+        ).aggregate(total_vendas=Sum('valor_calculado'))['total_vendas'] or Decimal('0.00')
 
     total_gastos = Gasto.objects.aggregate(total_gastos=Sum('valor'))['total_gastos'] or Decimal('0.00')
     saldo_caixa = total_vendas - total_compras - total_gastos
