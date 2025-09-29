@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+
+{% block content_title %}Dashboard de Estoques{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Título e Descrição -->
+  <h1 class="text-center mb-4 text-primary fw-bold">Gerenciamento de Estoques</h1>
+  <p class="text-center text-muted mb-5 lead">Selecione o estoque desejado para visualizar ou gerenciar.</p>
+
+  <!-- Alerta de Estoque Baixo -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="alert alert-warning text-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {% if alertas_count > 0 %}
+          {{ alertas_count }} itens com estoque baixo! <a href="#" class="alert-link">Ver detalhes</a>
+        {% else %}
+          Todos os estoques estão dentro do limite seguro.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de Cards -->
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <!-- Card para Ingredientes -->
+    <div class="col">
+      <a href="{% url 'ingredientes:lista_ingredientes' %}" class="text-decoration-none card-link">
+        <div class="card h-100 shadow-sm border-0 bg-gradient-primary rounded-3 position-relative animated-card">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-cup-hot fs-1 mb-3 text-black"></i>
+            <h5 class="card-title fw-bold text-black">Estoque de Ingredientes</h5>
+            <p class="card-text">Total: <span class="fw-medium text-black">{{ ingredientes_count|default:"0" }}</span> itens</p>
+            <button class="btn btn-primary btn-sm mt-3 btn-highlight">Acessar</button>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card para Patrimônios -->
+    <div class="col">
+      <a href="{% url 'patrimonios:lista_patrimonios' %}" class="text-decoration-none card-link">
+        <div class="card h-100 shadow-sm border-0 bg-gradient-success rounded-3 position-relative animated-card">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-gear-wide fs-1 mb-3 text-black"></i>
+            <h5 class="card-title fw-bold text-black">Estoque de Patrimônios</h5>
+            <p class="card-text">Total: <span class="fw-medium text-black">{{ patrimonios_count|default:"0" }}</span> itens</p>
+            <button class="btn btn-success btn-sm mt-3 btn-highlight">Acessar</button>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card para Insumos -->
+    <div class="col">
+      <a href="{% url 'insumos:lista_insumos' %}" class="text-decoration-none card-link">
+        <div class="card h-100 shadow-sm border-0 bg-gradient-warning rounded-3 position-relative animated-card">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-box-seam fs-1 mb-3 text-black"></i>
+            <h5 class="card-title fw-bold text-black">Estoque de Insumos</h5> <!-- Corrigido de "Patrimônios" para "Insumos" -->
+            <p class="card-text">Total: <span class="fw-medium text-black">{{ insumos_count|default:"0" }}</span> itens</p>
+            <button class="btn btn-warning btn-sm mt-3 btn-highlight">Acessar</button>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<style>
+  .card {
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+  .card-link {
+    display: block;
+  }
+  .animated-card {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  .card-body {
+    padding: 1.75rem;
+    position: relative;
+    z-index: 1;
+  }
+  .bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+  }
+  .bg-gradient-success {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+  }
+  .bg-gradient-warning {
+    background: linear-gradient(45deg, #ffc107, #d39e00);
+  }
+  .btn-highlight {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  .btn-primary.btn-highlight {
+    background-color: #ffffff;
+    color: #007bff;
+  }
+  .btn-success.btn-highlight {
+    background-color: #ffffff;
+    color: #28a745;
+  }
+  .btn-warning.btn-highlight {
+    background-color: #ffffff;
+    color: #ffc107;
+  }
+  .btn-highlight:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0.9;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .alert-link {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% block content_title %}{{ content_title }}{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0;">
+  <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-header bg-gradient" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+      <h5 class="text-white m-0" style="font-size: 1.3rem; font-weight: 600;">{{ content_title }}</h5>
+    </div>
+    <div class="card-body p-4" style="background: #fff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      <div class="row g-3">
+        <div class="col-12">
+          <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Nome:</strong> {{ insumo.nome }}</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Quantidade em Estoque:</strong> {{ insumo.quantidade_estoque }} {{ insumo.unidade_medida }}</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Quantidade Mínima:</strong> {{ insumo.quantidade_minima }} {{ insumo.unidade_medida }}</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Preço Unitário:</strong> R$ {{ insumo.preco_unitario|default:"Não definido" }}</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Em Alerta?</strong> {% if insumo.quantidade_estoque <= insumo.quantidade_minima %}Sim{% else %}Não{% endif %}</p>
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+          <a href="{% url 'insumos:lista_insumos' %}" class="btn btn-secondary" style="background: #6c757d; border: none; border-radius: 8px; padding: 10px 20px; color: #fff; transition: all 0.3s ease;">
+            <i class="bi bi-arrow-left"></i> Voltar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
+  @media (max-width: 768px) {
+    .col-12 { margin-bottom: 10px; }
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}

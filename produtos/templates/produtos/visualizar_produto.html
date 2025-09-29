@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% block content_title %}Visualizar Produto{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0;">
+  <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-header bg-gradient" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+      <h5 class="text-white m-0" style="font-size: 1.3rem; font-weight: 600; display: flex; align-items: center;">
+        <i class="bi bi-eye me-2"></i> Visualizar Produto
+      </h5>
+    </div>
+    <div class="card-body p-4" style="background: #fff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      <div class="row g-3">
+        <div class="col-12">
+          <h5 class="card-title" style="color: #000; font-size: 1.5rem; font-weight: 600;">{{ produto.nome }}</h5>
+        </div>
+        <div class="col-12 col-md-6">
+          <p class="card-text" style="color: #000; font-size: 1rem; font-weight: 400;">
+            <strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Imagem:</strong><br>
+            {% if produto.receita and produto.receita.imagem %}
+            <img src="{{ produto.receita.imagem.url }}" alt="{{ produto.nome }}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 5px; margin-top: 10px;">
+            {% else %}
+            <span class="text-muted">Sem imagem</span>
+            {% endif %}
+          </p>
+        </div>
+        <div class="col-12 col-md-6">
+          <p class="card-text" style="color: #000; font-size: 1rem; font-weight: 400;">
+            <strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Quantidade em Estoque:</strong> {{ produto.quantidade_estoque }} unidades
+          </p>
+          <p class="card-text" style="color: #000; font-size: 1rem; font-weight: 400;">
+            <strong style="color: #000; font-size: 1.1rem; font-weight: 600;">Preço de Venda:</strong> R$ {{ produto.preco_venda }}
+          </p>
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+          <a href="{% url 'produtos:lista_produtos' %}" class="btn btn-secondary" style="background: #6c757d; border: none; border-radius: 8px; padding: 10px 20px; color: #fff; transition: all 0.3s ease;">
+            <i class="bi bi-arrow-left"></i> Voltar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
+  @media (max-width: 768px) {
+    .col-12 { margin-bottom: 10px; }
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}

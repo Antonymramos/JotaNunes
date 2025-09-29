@@ -1,0 +1,123 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content_title %}Visualizar Cliente{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0;">
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <div class="card-header bg-gradient" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+            <h5 class="text-white m-0" style="font-size: 1.3rem; font-weight: 600; display: flex; align-items: center;">
+                <i class="bi bi-person-lines-fill me-2"></i> Detalhes de {{ cliente.nome }}
+            </h5>
+        </div>
+        <div class="card-body p-4" style="background: #fff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-person"></i> Nome:</strong> {{ cliente.nome }}</p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-hash"></i> Idade:</strong> {{ cliente.idade }}</p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-card-text"></i> CPF:</strong> {{ cliente.cpf }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-envelope"></i> Email:</strong> {{ cliente.email }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-person-badge"></i> Apelido/Referência Pessoal:</strong> {{ cliente.apelido|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-telephone"></i> Número:</strong> {{ cliente.numero }}
+                        <a href="whatsapp://send?phone=55{{ numero_limpo }}&text=Olá {{ cliente.nome }}! Gostaríamos de oferecer algo especial baseado nas suas preferências: {{ cliente.preferencias_alimentares|default:'Não informado' }}. Interesse?" class="btn btn-success btn-sm ms-2" target="_blank" style="color: #fff;" title="Abrir no WhatsApp" aria-label="Enviar mensagem no WhatsApp">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-pin-map"></i> CEP:</strong> {{ endereco_principal.cep|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-house"></i> Endereço:</strong> {{ endereco_principal.endereco|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-123"></i> Número (Endereço):</strong> {{ endereco_principal.numero_endereco|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-3">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-plus"></i> Complemento:</strong> {{ endereco_principal.complemento|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-geo-alt"></i> Bairro:</strong> {{ endereco_principal.bairro|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-building"></i> Cidade:</strong> {{ endereco_principal.cidade|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-map"></i> Estado:</strong> {{ endereco_principal.estado|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-exclamation-triangle"></i> Intolerâncias:</strong> {{ cliente.intolerancias|join:", "|default:"Nenhuma" }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-apple"></i> Preferências Alimentares:</strong> {{ cliente.preferencias_alimentares|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p style="color: #000; font-size: 1rem; font-weight: 400;"><strong style="color: #000; font-size: 1.1rem; font-weight: 600;"><i class="bi bi-pencil"></i> Observações:</strong> {{ cliente.observacoes|default:"Não informado" }}</p>
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-3">
+                    <a href="{% url 'clientes:listar_clientes' %}" class="btn btn-secondary" style="background: #6c757d; border: none; border-radius: 8px; padding: 10px 20px; color: #fff; transition: all 0.3s ease;">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                    <a href="{% url 'clientes:editar_cliente' cliente.id %}" class="btn btn-warning" style="color: #000; border-radius: 8px; padding: 10px 20px; transition: all 0.3s ease;">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+    .btn-success {
+        background-color: #25D366;
+        border-color: #25D366;
+    }
+    .btn-success:hover {
+        background-color: #1DA851;
+        border-color: #1DA851;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    .btn-warning:hover {
+        background-color: #e0a800;
+        transform: translateY(-2px);
+    }
+    @media (max-width: 768px) {
+        .row.g-3 {
+            flex-direction: column;
+        }
+        .col-12 {
+            margin-bottom: 15px;
+        }
+        .d-flex {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+    @media (max-width: 576px) {
+        .card-header h5 {
+            font-size: 1.1rem;
+        }
+        p {
+            font-size: 0.9rem;
+        }
+        .btn {
+            width: 100%;
+            margin-top: 5px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'core/base.html' %}
+{% block content_title %}{{ content_title }}{% endblock %}
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="card border-0 shadow-sm" style="border-radius: 8px; background: #ffffff; overflow: hidden;">
+    <div class="card-body p-4">
+      <!-- Cabeçalho com Nome e Foto -->
+      <div class="row align-items-center mb-4" style="border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; transition: all 0.3s ease;">
+        <div class="col-md-8">
+          <h4 class="text-uppercase fw-bold" style="color: #1e3a8a; font-size: 1.75rem; margin-bottom: 0.5rem; letter-spacing: 0.5px;">Nome da Preparação: {{ receita.nome }}</h4>
+          <p style="color: #64748b; font-size: 1.1rem;">Profissional: {{ receita.profissional|default:"Não especificado" }}</p>
+        </div>
+        <div class="col-md-4 text-md-end text-center">
+          {% if receita.imagem %}
+          <img src="{{ receita.imagem.url }}" alt="{{ receita.nome }}" class="img-fluid rounded" style="max-height: 150px; border: 2px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          {% else %}
+          <div class="placeholder-img rounded" style="background: #f3f4f6; height: 150px; line-height: 150px; text-align: center; color: #9ca3af; font-size: 1rem;">Foto do Prato</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Tabela de Insumos -->
+      <h6 class="text-uppercase mb-3 fw-bold text-white" style="background: linear-gradient(90deg, #3b82f6, #60a5fa); padding: 10px; font-size: 1.2rem; text-align: center; border-radius: 4px;">Insumos</h6>
+      {% if itens_com_custo %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover" style="color: #1f2937; font-size: 1rem;">
+          <thead style="background: linear-gradient(90deg, #3b82f6, #60a5fa); color: #ffffff;">
+            <tr>
+              <th class="py-2">ITEM</th>
+              <th class="py-2">UN</th>
+              <th class="py-2">Peso Bruto</th>
+              <th class="py-2">Peso Líquido</th>
+              <th class="py-2">Fator Correção</th>
+              <th class="py-2">Valor Unitário</th>
+              <th class="py-2">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in itens_com_custo %}
+            <tr style="transition: all 0.2s ease;">
+              <td>{{ item.ingrediente.nome }}</td>
+              <td>{{ item.unidade }}</td>
+              <td>{{ item.peso_bruto|default:"0.000"|floatformat:3 }}</td>
+              <td>{{ item.peso_liquido|default:"0.000"|floatformat:3 }}</td>
+              <td>{{ item.fator_correcao|floatformat:3 }}</td>
+              <td>R$ {{ item.valor_unitario|floatformat:2 }}</td>
+              <td>R$ {{ item.valor_total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot style="background: #f3f4f6; font-weight: 600;">
+            <tr>
+              <td colspan="6" class="text-end pe-3">Total dos Insumos</td>
+              <td>R$ {{ total_insumos|floatformat:2 }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-3">Nenhum ingrediente cadastrado para esta receita.</p>
+      {% endif %}
+
+      <!-- Modo de Preparo -->
+      <h6 class="text-uppercase mb-3 fw-bold" style="color: #1e3a8a; font-size: 1.2rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px;">Modo de Preparo</h6>
+      <ol class="list-group list-group-numbered">
+        {% for passo in receita.modo_preparo.splitlines %}
+        <li class="list-group-item border-0" style="color: #64748b; background: #f9fafb; margin-bottom: 5px; border-radius: 4px;">{{ passo }}</li>
+        {% empty %}
+        <li class="list-group-item border-0" style="color: #64748b; background: #f9fafb; margin-bottom: 5px; border-radius: 4px;">Nenhum modo de preparo cadastrado.</li>
+        {% endfor %}
+      </ol>
+
+      <!-- Rendimento e Custos -->
+      <div class="row mt-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+          <p class="mb-0" style="color: #1f2937; font-size: 1.1rem;"><strong>Rendimento:</strong> {{ receita.rendimento }} porções</p>
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0">
+          <p class="mb-0" style="color: #1f2937; font-size: 1.1rem;"><strong>Custo Total:</strong> R$ {{ receita.custo_total|floatformat:2 }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="mb-0" style="color: #1f2937; font-size: 1.1rem;"><strong>Custo/Porção:</strong> R$ {{ receita.custo_por_porcao|floatformat:2 }}</p>
+        </div>
+      </div>
+
+      <!-- Fornadas -->
+      <h6 class="text-uppercase mb-3 fw-bold" style="color: #1e3a8a; font-size: 1.2rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px;">Fornadas</h6>
+      {% if fornadas.exists %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover" style="color: #1f2937; font-size: 1rem;">
+          <thead style="background: linear-gradient(90deg, #3b82f6, #60a5fa); color: #ffffff;">
+            <tr>
+              <th class="py-2">Data de Produção</th>
+              <th class="py-2">Quantidade Produzida</th>
+              <th class="py-2">Produto Gerado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fornada in fornadas %}
+            <tr style="transition: all 0.2s ease;">
+              <td>{{ fornada.data_producao|date:"d/m/Y H:i" }}</td>
+              <td>{{ fornada.quantidade_produzida }}</td>
+              <td>{{ fornada.produto_gerado.nome|default:"N/A" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-3">Nenhuma fornada registrada para esta receita.</p>
+      {% endif %}
+
+      <!-- Botão de Download do PDF -->
+      <div class="text-center mt-4">
+  <a href="{% url 'receitas:gerar_relatorio_receita' receita.pk %}" class="btn btn-primary btn-sm" style="background: linear-gradient(45deg, #3b82f6, #60a5fa); border: none; padding: 10px 20px; color: #fff; transition: all 0.3s ease;" aria-label="Baixar relatório em PDF">
+    <i class="bi bi-download"></i> Baixar PDF
+  </a>
+</div>
+
+    </div>
+    <div class="card-footer text-center" style="background: #f3f4f6; border-top: 1px solid #e0e0e0; padding: 10px;">
+      <p style="color: #64748b; font-size: 0.95rem;">FICHA TÉCNICA DE PREPARAÇÃO - BulgariaAju © 2025</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  body, .form-label, .table {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .table {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .table thead th {
+    font-weight: 600;
+    text-align: center;
+  }
+  .table tbody td {
+    vertical-align: middle;
+    text-align: center;
+  }
+  .btn-sm {
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+  }
+  .placeholder-img {
+    transition: all 0.3s ease;
+  }
+  .placeholder-img:hover {
+    background: #d1d5db;
+    color: #374151;
+  }
+  @media (max-width: 768px) {
+    .row.align-items-center dt, .row.align-items-center dd {
+      margin-bottom: 10px;
+    }
+    .table {
+      font-size: 0.9rem;
+    }
+    .card-body .btn {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    h4 {
+      font-size: 1.5rem;
+    }
+    p {
+      font-size: 1rem;
+    }
+    .col-md-4 {
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}

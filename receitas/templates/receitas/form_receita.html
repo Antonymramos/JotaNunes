@@ -1,0 +1,449 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content_title %}
+  {% if form.instance.pk %}Editar{% else %}Criar{% endif %} Receita
+{% endblock %}
+{% block content %}
+<form method="post" action="" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="container-fluid px-0">
+    <div class="card border-0 shadow-sm" style="border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+      <div class="card-header bg-gradient d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #007bff, #00b7eb); border-radius: 10px 10px 0 0; padding: 1rem;">
+        <h5 class="text-white m-0" style="font-size: 1.25rem; font-weight: 600; letter-spacing: 0.5px;">
+          <i class="bi bi-bookmark-plus me-2"></i> {{ block.super }}
+        </h5>
+        <a href="{% url 'receitas:listar_receitas' %}" class="btn btn-light btn-sm" style="font-weight: 500; padding: 0.5rem 1rem; border-radius: 5px; min-width: 100px;" aria-label="Voltar para a lista de receitas">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+      </div>
+      <div class="card-body p-3 p-md-4" style="background: #f8f9fa; border-radius: 0 0 10px 10px;">
+        {% if messages %}
+        <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert" style="border-radius: 5px; font-size: 0.9rem; padding: 0.75rem 1rem; max-width: 100%; box-sizing: border-box;">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {% for message in messages %} {{ message }} {% endfor %}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        {% endif %}
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="card p-3" style="border-radius: 8px; background: #fff;">
+              <h6 class="text-muted mb-3" style="font-size: 1.1rem; font-weight: 600;">Dados da Receita</h6>
+              <div class="row g-3">
+                {% for field in form %}
+                <div class="col-12 {% if field.name != 'modo_preparo' %}col-md-6{% endif %}">
+                  <label for="{{ field.id_for_label }}" class="form-label" style="font-size: 0.9rem; font-weight: 500;" title="{% if field.name == 'nome' %}Nome identificador da receita{% elif field.name == 'profissional' %}Nome do responsável pela receita{% elif field.name == 'imagem' %}Imagem ilustrativa da receita{% elif field.name == 'modo_preparo' %}Instruções detalhadas para preparar a receita{% elif field.name == 'rendimento' %}Quantidade de porções que a receita produz{% endif %}">
+                    {{ field.label }}
+                  </label>
+                  {% if field.name == 'imagem' %}
+                    {{ field|add_class:"form-control py-2"|attr:"aria-required:false" }}
+                    <small class="text-muted">Imagem ilustrativa da receita (máximo 2MB, formatos JPG ou PNG).</small>
+                    {% if form.instance.imagem %}
+                      <div class="mt-2">
+                        <img src="{{ form.instance.imagem.url }}" alt="Imagem atual da receita" style="max-width: 100%; height: auto; max-height: 200px; border-radius: 5px; display: block;">
+                        <p class="small text-muted mt-1">Imagem atual. Selecione uma nova para substituir.</p>
+                      </div>
+                      <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" name="imagem-clear" id="id_imagem-clear" aria-label="Remover imagem atual">
+                        <label class="form-check-label" for="id_imagem-clear">Remover imagem</label>
+                      </div>
+                    {% endif %}
+                  {% elif field.name == 'modo_preparo' %}
+                    {{ field|add_class:"form-control py-2"|attr:"aria-required:true"|attr:"style:min-height: 8rem; resize: vertical;" }}
+                    <small class="text-muted">Descrição detalhada do passo a passo para preparar a receita.</small>
+                  {% else %}
+                    {{ field|add_class:"form-control py-2"|attr:"aria-required:true" }}
+                    <small class="text-muted">
+                      {% if field.name == 'nome' %}Nome da receita (ex.: Bolo de Chocolate).{% elif field.name == 'profissional' %}Nome do responsável pela receita (ex.: Chef João Silva).{% elif field.name == 'rendimento' %}Quantidade de porções que a receita produz (ex.: 8 porções).{% endif %}
+                    </small>
+                  {% endif %}
+                  {% if field.errors %}
+                    <div class="text-danger small mt-1" role="alert">{{ field.errors }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="card p-3" style="border-radius: 8px; background: #fff;">
+              <h6 class="text-muted mb-3" style="font-size: 1.1rem; font-weight: 600;">Itens da Receita</h6>
+              {{ formset.management_form }}
+              <div id="formset-container" class="formset-container">
+                {% for formset_form in formset %}
+                <div class="row mb-3 formset-item border p-3 bg-light" data-form-index="{{ forloop.counter0 }}" style="border-radius: 8px;">
+                  <div class="col-12">
+                    <div class="row g-2 align-items-end">
+                      {% for field in formset_form.visible_fields %}
+                        {% if field.name != 'DELETE' %}
+                        <div class="col-12 col-sm-6 col-md-{% if field.name == 'ingrediente' %}4{% elif field.name == 'unidade' %}2{% else %}2{% endif %} mb-2">
+                          <label for="{{ field.id_for_label }}" class="form-label" style="font-size: 0.9rem; font-weight: 500;" title="{% if field.name == 'ingrediente' %}Ingrediente usado na receita{% elif field.name == 'unidade' %}Unidade de medida do ingrediente{% elif field.name == 'peso_bruto' %}Peso total do ingrediente antes do preparo{% elif field.name == 'peso_liquido' %}Peso utilizável do ingrediente após preparo{% elif field.name == 'fator_correcao' %}Fator de ajuste entre peso bruto e líquido{% elif field.name == 'valor_unitario' %}Custo por unidade do ingrediente{% elif field.name == 'valor_total' %}Custo total do ingrediente na receita{% endif %}">
+                            {{ field.label }}
+                          </label>
+                          {{ field|add_class:"form-control py-2"|attr:"aria-required:true" }}
+                          <small class="text-muted">
+                            {% if field.name == 'ingrediente' %}Selecione o ingrediente usado na receita (ex.: Farinha de Trigo).{% elif field.name == 'unidade' %}Unidade de medida do ingrediente (ex.: kg, g, ml).{% elif field.name == 'peso_bruto' %}Peso total do ingrediente antes do preparo (em gramas).{% elif field.name == 'peso_liquido' %}Peso utilizável após preparo, calculado automaticamente se peso bruto e fator de correção forem fornecidos.{% elif field.name == 'fator_correcao' %}Fator de ajuste entre peso bruto e líquido (ex.: 0.9 para 90% de aproveitamento), calculado automaticamente se peso bruto e líquido forem fornecidos.{% elif field.name == 'valor_unitario' %}Custo por unidade do ingrediente (em R$).{% elif field.name == 'valor_total' %}Custo total do ingrediente na receita (em R$), calculado automaticamente.{% endif %}
+                          </small>
+                          {% if field.errors %}
+                            <div class="text-danger small mt-1" role="alert">{{ field.errors }}</div>
+                          {% endif %}
+                        </div>
+                        {% endif %}
+                      {% endfor %}
+                      <div class="col-12 col-sm-6 col-md-2 d-flex align-items-end mb-2">
+                        <button type="button" class="btn btn-danger btn-sm remove-item w-100" style="padding: 0.5rem; border-radius: 5px; min-width: 100px;" aria-label="Remover item">
+                          <i class="bi bi-trash"></i> Remover
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="add-item" style="padding: 0.5rem 1rem; border-radius: 5px; min-width: 150px;" aria-label="Adicionar novo ingrediente">
+                <i class="bi bi-plus-circle"></i> Adicionar Ingrediente
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
+          <a href="{% url 'receitas:listar_receitas' %}" class="btn btn-secondary" style="padding: 0.5rem 1rem; border-radius: 5px; min-width: 100px;" aria-label="Cancelar e voltar">Cancelar</a>
+          <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; border-radius: 5px; min-width: 100px;" aria-label="Salvar receita">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formsetContainer = document.getElementById("formset-container");
+    const addItemButton = document.getElementById("add-item");
+    const totalForms = document.querySelector("#id_itens-TOTAL_FORMS");
+    let formCount = parseInt(totalForms.value);
+
+    // Validação de tamanho da imagem
+    const imageInput = document.querySelector('input[name="imagem"]');
+    if (imageInput) {
+      imageInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file && file.size > maxSize) {
+          alert('A imagem excede o limite de 2MB.');
+          e.target.value = '';
+        }
+      });
+    }
+
+    // Função para atualizar cálculos
+    function updateCalculations(formItem) {
+      const pesoBrutoInput = formItem.querySelector('input[name$="-peso_bruto"]');
+      const fatorCorrecaoInput = formItem.querySelector('input[name$="-fator_correcao"]');
+      const pesoLiquidoInput = formItem.querySelector('input[name$="-peso_liquido"]');
+      const valorUnitarioInput = formItem.querySelector('input[name$="-valor_unitario"]');
+      const valorTotalInput = formItem.querySelector('input[name$="-valor_total"]');
+
+      if (pesoBrutoInput && fatorCorrecaoInput && pesoLiquidoInput) {
+        const pesoBruto = parseFloat(pesoBrutoInput.value) || 0;
+        const fatorCorrecao = parseFloat(fatorCorrecaoInput.value) || 1;
+        const pesoLiquido = parseFloat(pesoLiquidoInput.value) || 0;
+
+        // Evitar divisão por zero
+        if (pesoBruto > 0 && fatorCorrecao > 0 && !pesoLiquidoInput.dataset.userModified) {
+          pesoLiquidoInput.value = (pesoBruto / fatorCorrecao).toFixed(3);
+          pesoLiquidoInput.dataset.userModified = "false";
+          pesoLiquidoInput.classList.add('is-valid');
+          pesoLiquidoInput.classList.remove('is-invalid');
+        } else if (pesoBruto > 0 && pesoLiquido > 0 && pesoLiquidoInput.dataset.userModified === "true") {
+          fatorCorrecaoInput.value = (pesoBruto / pesoLiquido).toFixed(3);
+          fatorCorrecaoInput.classList.add('is-valid');
+          fatorCorrecaoInput.classList.remove('is-invalid');
+          pesoLiquidoInput.dataset.userModified = "false";
+        } else if (fatorCorrecao <= 0 || pesoLiquido <= 0) {
+          pesoLiquidoInput.classList.add('is-invalid');
+          fatorCorrecaoInput.classList.add('is-invalid');
+        }
+
+        // Atualizar valor total
+        if (valorUnitarioInput && valorTotalInput && pesoLiquido > 0) {
+          const valorUnitario = parseFloat(valorUnitarioInput.value) || 0;
+          valorTotalInput.value = (pesoLiquido * valorUnitario).toFixed(2);
+          valorTotalInput.classList.add('is-valid');
+          valorTotalInput.classList.remove('is-invalid');
+        }
+      }
+    }
+
+    // Adicionar novo item
+    addItemButton.addEventListener("click", function () {
+      if (!formsetContainer.firstElementChild) return;
+      const newForm = formsetContainer.firstElementChild.cloneNode(true);
+      newForm.classList.add("border", "p-3", "bg-light");
+      newForm.setAttribute("data-form-index", formCount);
+      newForm.style.opacity = "0";
+      newForm.style.transition = "opacity 0.3s ease";
+      setTimeout(() => {
+        newForm.style.opacity = "1";
+      }, 10);
+      newForm.querySelectorAll("input, select").forEach((input) => {
+        const name = input.name.replace(/itens-\d+-/, `itens-${formCount}-`);
+        const id = input.id.replace(/itens-\d+-/, `itens-${formCount}-`);
+        input.name = name;
+        input.id = id;
+        if (input.type !== "hidden" && !input.name.includes("-id") && !input.name.includes("-DELETE")) {
+          input.value = input.name.includes("-fator_correcao") ? "1.000" : "";
+          input.classList.remove('is-valid', 'is-invalid');
+        }
+        if (input.tagName === "SELECT") input.selectedIndex = 0;
+        if (input.name.includes("-peso_liquido")) input.dataset.userModified = "false";
+      });
+      newForm.querySelector('input[name$="-id"]')?.remove();
+      newForm.querySelector('input[name$="-DELETE"]')?.remove();
+      formsetContainer.appendChild(newForm);
+      totalForms.value = formCount + 1;
+      formCount++;
+      const feedback = document.createElement("div");
+      feedback.className = "alert alert-success small mt-2";
+      feedback.textContent = "Item adicionado!";
+      feedback.style.maxWidth = "100%";
+      formsetContainer.appendChild(feedback);
+      setTimeout(() => feedback.remove(), 2000);
+
+      const pesoBrutoInput = newForm.querySelector('input[name$="-peso_bruto"]');
+      const fatorCorrecaoInput = newForm.querySelector('input[name$="-fator_correcao"]');
+      const pesoLiquidoInput = newForm.querySelector('input[name$="-peso_liquido"]');
+      const valorUnitarioInput = newForm.querySelector('input[name$="-valor_unitario"]');
+      const select = newForm.querySelector('select[name$="-ingrediente"]');
+
+      pesoBrutoInput?.addEventListener('input', () => updateCalculations(newForm));
+      fatorCorrecaoInput?.addEventListener('input', () => {
+        pesoLiquidoInput.dataset.userModified = "false";
+        updateCalculations(newForm);
+      });
+      pesoLiquidoInput?.addEventListener('input', () => {
+        pesoLiquidoInput.dataset.userModified = "true";
+        updateCalculations(newForm);
+      });
+      valorUnitarioInput?.addEventListener('input', () => updateCalculations(newForm));
+
+      if (select) {
+        select.addEventListener('change', function () {
+          const formItem = this.closest('.formset-item');
+          const ingredienteId = this.value;
+          if (ingredienteId) {
+            const spinner = document.createElement("div");
+            spinner.className = "spinner-border spinner-border-sm text-primary ms-2";
+            formItem.appendChild(spinner);
+            fetch(`/api/ingrediente/${ingredienteId}/preco/`)
+              .then(response => response.json())
+              .then(data => {
+                const valorUnitarioInput = formItem.querySelector('input[name$="-valor_unitario"]');
+                if (valorUnitarioInput) {
+                  valorUnitarioInput.value = data.preco_unitario || "0.00";
+                  updateCalculations(formItem);
+                }
+                spinner.remove();
+              })
+              .catch(() => spinner.remove());
+          }
+        });
+      }
+    });
+
+    // Remover item
+    formsetContainer.addEventListener("click", function (e) {
+      if (e.target.closest(".remove-item")) {
+        const formItem = e.target.closest(".formset-item");
+        formItem.style.opacity = "0";
+        setTimeout(() => {
+          formItem.remove();
+          const formItems = formsetContainer.querySelectorAll(".formset-item");
+          formItems.forEach((item, index) => {
+            item.setAttribute("data-form-index", index);
+            item.querySelectorAll("input, select").forEach((input) => {
+              const name = input.name.replace(/itens-\d+-/, `itens-${index}-`);
+              const id = input.id.replace(/itens-\d+-/, `itens-${index}-`);
+              input.name = name;
+              input.id = id;
+            });
+          });
+          totalForms.value = formItems.length;
+          formCount = formItems.length;
+          const feedback = document.createElement("div");
+          feedback.className = "alert alert-warning small mt-2";
+          feedback.textContent = "Item removido!";
+          feedback.style.maxWidth = "100%";
+          formsetContainer.appendChild(feedback);
+          setTimeout(() => feedback.remove(), 2000);
+        }, 300);
+      }
+    });
+
+    // Inicializar eventos para itens existentes
+    formsetContainer.querySelectorAll('.formset-item').forEach(formItem => {
+      const pesoBrutoInput = formItem.querySelector('input[name$="-peso_bruto"]');
+      const fatorCorrecaoInput = formItem.querySelector('input[name$="-fator_correcao"]');
+      const pesoLiquidoInput = formItem.querySelector('input[name$="-peso_liquido"]');
+      const valorUnitarioInput = formItem.querySelector('input[name$="-valor_unitario"]');
+      const select = formItem.querySelector('select[name$="-ingrediente"]');
+
+      pesoBrutoInput?.addEventListener('input', () => updateCalculations(formItem));
+      fatorCorrecaoInput?.addEventListener('input', () => {
+        pesoLiquidoInput.dataset.userModified = "false";
+        updateCalculations(formItem);
+      });
+      pesoLiquidoInput?.addEventListener('input', () => {
+        pesoLiquidoInput.dataset.userModified = "true";
+        updateCalculations(formItem);
+      });
+      valorUnitarioInput?.addEventListener('input', () => updateCalculations(formItem));
+
+      if (select) {
+        select.addEventListener('change', function () {
+          const formItem = this.closest('.formset-item');
+          const ingredienteId = this.value;
+          if (ingredienteId) {
+            const spinner = document.createElement("div");
+            spinner.className = "spinner-border spinner-border-sm text-primary ms-2";
+            formItem.appendChild(spinner);
+            fetch(`/api/ingrediente/${ingredienteId}/preco/`)
+              .then(response => response.json())
+              .then(data => {
+                const valorUnitarioInput = formItem.querySelector('input[name$="-valor_unitario"]');
+                if (valorUnitarioInput) {
+                  valorUnitarioInput.value = data.preco_unitario || "0.00";
+                  updateCalculations(formItem);
+                }
+                spinner.remove();
+              })
+              .catch(() => spinner.remove());
+          }
+        });
+      }
+    });
+  });
+</script>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  .form-control, .form-select {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0.5rem rgba(0, 123, 255, 0.4);
+    outline: none;
+  }
+  .form-control.is-valid, .form-select.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0.5rem rgba(40, 167, 69, 0.4);
+  }
+  .form-control.is-invalid, .form-select.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0.5rem rgba(220, 53, 69, 0.4);
+  }
+  .btn-primary {
+    background: linear-gradient(45deg, #007bff, #00b7eb);
+    border: none;
+  }
+  .btn-primary:hover, .btn-outline-primary:hover {
+    background: linear-gradient(45deg, #005cbf, #0096cc);
+    color: #fff;
+  }
+  .btn-danger:hover {
+    background: #b02a37;
+  }
+  .formset-item {
+    transition: opacity 0.3s ease;
+  }
+  .formset-item.border {
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+  }
+  .alert {
+    font-size: 0.9rem;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+  }
+  .form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .card-header, .card-body {
+    padding: 1rem;
+  }
+  .btn {
+    min-width: 100px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+  }
+  #add-item {
+    min-width: 150px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .form-check {
+    text-align: center;
+  }
+  @media (max-width: 576px) {
+    .card-header h5 {
+      font-size: 1rem;
+    }
+    .form-label, .form-control, .form-select, .btn {
+      font-size: 0.85rem;
+    }
+    .card-body {
+      padding: 0.75rem;
+    }
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    .formset-item .row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .col-12 {
+      margin-bottom: 1rem;
+    }
+  }
+  @media (min-width: 577px) and (max-width: 991px) {
+    .col-sm-6, .col-md-4, .col-md-2 {
+      margin-bottom: 1rem;
+    }
+    .btn {
+      width: auto;
+    }
+    .formset-item .row {
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+    .col-md-2 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+  @media (min-width: 992px) {
+    .d-flex {
+      gap: 1rem;
+    }
+    .formset-item .row {
+      align-items: end;
+    }
+  }
+</style>
+{% endblock %}

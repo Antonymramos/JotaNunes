@@ -1,0 +1,335 @@
+/* Definindo a fonte Milky Vintage */
+@font-face {
+  font-family: 'Milky Vintage';
+  src: url('/static/core/fonts/MilkyVintage-Regular.woff2') format('woff2'),
+       url('/static/core/fonts/MilkyVintage-Regular.ttf') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Variáveis CSS */
+:root {
+  --primary-color: #bf0200;  /* Vermelho suave da logo */
+  --secondary-color: #e0c993; /* Bege claro */
+  --background-light: #edf0d1; /* Fundo claro */
+  --background-secondary: #f2c04; /* Fundo secundário */
+}
+
+/* Estilos gerais do corpo */
+body {
+  font-family: 'Milky Vintage', sans-serif;
+  background-color: var(--background-light);
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Estilos da sidebar */
+.sidebar {
+  background-color: var(--secondary-color);
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  padding: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.sidebar .logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.sidebar .logo i {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.sidebar .logo h5 {
+  margin: 0 10px;
+  font-family: 'Milky Vintage', sans-serif;
+  font-size: 1.8rem;
+  color: var(--primary-color);
+}
+
+.sidebar .nav-link {
+  color: #2e0000;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin: 5px 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .nav-link i {
+  margin-right: 10px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+  background-color: rgba(224, 201, 147, 0.5);
+  transform: translateX(5px);
+}
+
+/* Estilos do conteúdo principal */
+.content-wrapper {
+  margin-left: 250px;
+  padding: 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+  padding-right: 0;
+  background-color: var(--background-light);
+}
+
+/* Estilos da topbar */
+.topbar {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.topbar h2 {
+  font-family: 'Milky Vintage', sans-serif;
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+/* Estilos da seção de usuário */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-section span {
+  color: #555;
+  font-weight: 500;
+}
+
+/* Estilos do botão danger */
+.btn-danger {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: #a00200;
+  transform: translateY(-2px);
+}
+
+/* Estilos do alerta fixo */
+.alert-fixed-top {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 1000;
+  font-family: 'Milky Vintage', sans-serif;
+}
+
+.alert-fixed-top .badge {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.alert-fixed-top .badge:hover,
+.alert-fixed-top .badge:focus {
+  background-color: #a00200;
+  transform: translateY(-2px);
+}
+
+/* Estilos do conteúdo */
+.content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Estilos do toggle da sidebar */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* Media queries para responsividade */
+@media (min-width: 1600px) {
+  .sidebar {
+    width: 300px;
+  }
+  .content-wrapper {
+    margin-left: 300px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .content-wrapper {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .topbar h2 {
+    font-size: 1.8rem;
+  }
+  .user-section .btn-danger {
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 15px;
+  }
+  .sidebar .logo h5,
+  .sidebar .nav-link span {
+    display: none;
+  }
+  .sidebar .nav-link i {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  .sidebar .logo i {
+    font-size: 1.8rem;
+  }
+  .content-wrapper {
+    margin-left: 70px;
+  }
+  .topbar {
+    padding: 10px;
+  }
+  .topbar h2 {
+    font-size: 1.5rem;
+  }
+  .alert-fixed-top {
+    top: 70px;
+    right: 10px;
+  }
+  .alert-fixed-top .badge {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .topbar {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  .user-section {
+    width: 100%;
+    justify-content: center;
+  }
+  .user-section span {
+    display: block;
+    margin-bottom: 5px;
+  }
+  .content-wrapper {
+    padding: 10px;
+  }
+  .alert-fixed-top {
+    top: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .sidebar.active {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  .content-wrapper {
+    margin-left: 0;
+  }
+  .sidebar-toggle {
+    display: block;
+  }
+  .topbar h2 {
+    font-size: 1.3rem;
+  }
+  .user-section .btn-danger {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+  }
+  .alert-fixed-top {
+    top: 50px;
+    right: 5px;
+  }
+  .alert-fixed-top .badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Design do coração */
+.heart {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background-color: #e0c993;
+  transform: rotate(-45deg);
+  margin: 0 10px;
+}
+.heart:before,
+.heart:after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #e0c993;
+  border-radius: 50%;
+}
+.heart:before {
+  top: -10px;
+  left: 0;
+}
+.heart:after {
+  left: 10px;
+  top: 0;
+}
+.sidebar .logo .heart {
+  margin-left: 5px;
+}

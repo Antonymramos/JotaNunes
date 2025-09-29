@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content_title %}Detalhes da Compra{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0; background: #f5f7fa; min-height: 100vh;">
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h4 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Detalhes da Compra #{{ compra.pk }}</h4>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Ingrediente:</strong>
+                {% if compra.ingrediente %}
+                  {{ compra.ingrediente.nome }}
+                {% else %}
+                  Não especificado
+                {% endif %}
+              </p>
+              <p><strong>Quantidade Comprada:</strong> {{ compra.quantidade_comprada }}</p>
+              <p><strong>Valor Unitário (R$):</strong> {{ compra.valor_unitario|floatformat:2 }}</p>
+              <p><strong>Valor Total (R$):</strong> {{ valor_total|floatformat:2 }}</p>
+              <p><strong>Data da Compra:</strong> {{ compra.data_compra|date:"d/m/Y H:i" }}</p>
+            </div>
+          </div>
+          <a href="{% url 'financeiro:historico_transacoes' %}" class="btn btn-secondary mt-3" style="color: #fff; padding: 0.5rem 1rem; transition: all 0.3s ease;">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

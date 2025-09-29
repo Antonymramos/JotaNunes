@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% block content_title %}Lista de Fornadas{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0;">
+  <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-header bg-gradient d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+      <h5 class="text-white m-0" style="font-size: 1.3rem; font-weight: 600;">Fornadas</h5>
+      <a href="{% url 'fornadas:criar_fornada' %}" class="btn btn-light btn-sm" style="color: #000; border-radius: 8px; padding: 6px 12px; transition: all 0.3s ease;">
+        <i class="bi bi-plus-circle"></i> Adicionar
+      </a>
+    </div>
+    <div class="card-body p-4" style="background: #fff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      {% if messages %}
+      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="color: #000; border-radius: 10px; font-size: 1rem; font-weight: 400;">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+      {% if fornadas %}
+      <table class="table table-striped table-hover" style="color: #000;">
+        <thead>
+          <tr ACCOUNTancy="bg-light">
+            <th style="font-size: 1rem; font-weight: 500;">Receita</th>
+            <th style="font-size: 1rem; font-weight: 500;">Data e Hora</th>
+            <th style="font-size: 1rem; font-weight: 500;">Quantidade</th>
+            <th style="font-size: 1rem; font-weight: 500;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fornada in fornadas %}
+          <tr>
+            <td style="font-size: 1rem; font-weight: 400;">{{ fornada.receita.nome }}</td>
+            <td style="font-size: 1rem; font-weight: 400;">{{ fornada.data_producao|date:"d/m/Y H:i" }}</td>
+            <td style="font-size: 1rem; font-weight: 400;">{{ fornada.quantidade_produzida }} execuções = {{ fornada.total_unidades }} unidades</td>
+            <td>
+              <a href="{% url 'fornadas:editar_fornada' fornada.pk %}" class="btn btn-primary btn-sm me-2" style="color: #000;">
+                <i class="bi bi-pencil"></i> Editar
+              </a>
+              <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ fornada.pk }}" style="color: #000;">
+                <i class="bi bi-trash"></i> Deletar
+              </button>
+            </td>
+          </tr>
+          <div class="modal fade" id="deleteModal{{ fornada.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ fornada.pk }}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel{{ fornada.pk }}" style="color: #000; font-size: 1.2rem; font-weight: 600;">Confirmar Deleção</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="color: #000; font-size: 1rem; font-weight: 400;">
+                  Tem certeza que deseja deletar a fornada "{{ fornada.receita.nome }}" de {{ fornada.data_producao|date:"d/m/Y H:i" }}?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #000;">Cancelar</button>
+                  <form method="post" action="{% url 'fornadas:deletar_fornada' fornada.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" style="color: #000;">Deletar</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-center text-muted" style="color: #000; font-size: 1rem; font-weight: 400;">Nenhuma fornada cadastrada.</p>
+      {% endif %}
+      <div class="col-12 d-flex justify-content-end mt-3">
+        <a href="{% url 'fornadas:lista_fornadas' %}" class="btn btn-secondary" style="background: #6c757d; border: none; border-radius: 8px; padding: 10px 20px; color: #fff; transition: all 0.3s ease;">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
+  .btn-primary:hover { background: linear-gradient(45deg, #b02a37, #c44d58); transform: translateY(-2px); }
+  .btn-danger:hover { background: linear-gradient(45deg, #b02a37, #c44d58); transform: translateY(-2px); }
+  .btn-light:hover { background: #e9ecef; transform: translateY(-2px); }
+  @media (max-width: 768px) {
+    .table { font-size: 0.9rem; }
+    .card-header .btn { padding: 4px 8px; font-size: 0.9rem; }
+    .btn { width: 100%; margin-bottom: 10px; }
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends 'core/base.html' %}
+{% block content_title %}Dashboard ERP Padaria{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ERP Padaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(12px);
+            background: rgba(229, 231, 235, 0.2); /* Branco mais escuro com transparência */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(59, 130, 246, 0.5); /* Borda azul sutil no hover */
+        }
+        .card-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            opacity: 0.5;
+            font-size: 2.5rem;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            color: white;
+        }
+        .card:hover .card-icon {
+            transform: scale(1.2) rotate(5deg) translateY(-5px);
+            opacity: 0.8;
+        }
+        .negative-balance {
+            background: linear-gradient(135deg, #f87171, #b91c1c);
+            border: 1px solid #ef4444;
+        }
+        .positive-balance {
+            background: linear-gradient(135deg, #34d399, #047857);
+            border: 1px solid #10b981;
+        }
+        .alert-card {
+            background: linear-gradient(135deg, #facc15, #d97706);
+            border: 1px solid #eab308;
+            animation: pulse 2s infinite;
+        }
+        .sales-card {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border: 1px solid #2563eb;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, rgba(229, 231, 235, 0.9), rgba(209, 213, 219, 0.7)); /* Branco mais escuro */
+            border: 1px solid rgba(209, 213, 219, 0.4);
+        }
+        .metric-card:hover {
+            background: linear-gradient(135deg, rgba(209, 213, 219, 0.9), rgba(200, 200, 200, 0.7));
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        .recent-activity-card {
+            background: linear-gradient(135deg, rgba(229, 231, 235, 0.9), rgba(209, 213, 219, 0.7)); /* Branco mais escuro */
+            border: 1px solid rgba(209, 213, 219, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        .recent-activity-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        .btn {
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.4s ease;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .list-item {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .list-item:hover {
+            background-color: #d1d5db;
+            transform: translateX(5px);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) translateX(-10px); }
+            to { opacity: 1; transform: translateY(0) translateX(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-6 py-12">
+        <h2 class="text-4xl font-extrabold text-center text-gray-800 mb-12">ERP Padaria - Visão Geral</h2>
+
+        <!-- Métricas Principais -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- Saldo Financeiro -->
+            <div class="card fade-in {% if saldo_caixa < 0 %}negative-balance{% else %}positive-balance{% endif %} text-white p-8 tooltip" data-tooltip="Saldo total após compras e gastos">
+                <i class="fas fa-dollar-sign card-icon"></i>
+                <h3 class="text-xl font-bold">Saldo Atual</h3>
+                <p class="text-5xl font-extrabold mt-4 leading-tight">{{ saldo_caixa|floatformat:2 }} R$</p>
+                <p class="text-sm mt-4 opacity-80">Atualizado em {{ ultimo_update|date:"d/m/Y H:i" }}</p>
+            </div>
+            <!-- Estoque em Alerta -->
+            <div class="card fade-in alert-card text-white p-8 tooltip" data-tooltip="Ingredientes e insumos abaixo do mínimo">
+                <i class="fas fa-exclamation-triangle card-icon"></i>
+                <h3 class="text-xl font-bold">Itens em Alerta</h3>
+                <p class="text-5xl font-extrabold mt-4 leading-tight">{{ alertas_count }}</p>
+                <a href="{% url 'ingredientes:gerar_lista_compras' %}" class="mt-5 inline-block bg-white text-yellow-700 px-6 py-3 btn hover:bg-gray-100">Ver Detalhes</a>
+            </div>
+            <!-- Produtos Vendidos -->
+            <div class="card fade-in sales-card text-white p-8 tooltip" data-tooltip="Total de produtos vendidos">
+                <i class="fas fa-shopping-cart card-icon"></i>
+                <h3 class="text-xl font-bold">Produtos Vendidos</h3>
+                <p class="text-5xl font-extrabold mt-4 leading-tight">{{ total_produtos_vendidos }}</p>
+                <a href="{% url 'financeiro:historico_transacoes' %}" class="mt-5 inline-block bg-white text-blue-700 px-6 py-3 btn hover:bg-gray-100">Ver Vendas</a>
+            </div>
+        </div>
+
+        <!-- Detalhes por App -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Ingredientes -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Gerencie os ingredientes em estoque">
+                <i class="fas fa-utensils card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Ingredientes</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Total: {{ total_ingredientes }}</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Em Alerta: {{ alertas_count }}</p>
+                <a href="{% url 'ingredientes:lista_ingredientes' %}" class="mt-5 inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 btn hover:bg-blue-700">Gerenciar</a>
+            </div>
+            <!-- Receitas -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Gerencie as receitas disponíveis">
+                <i class="fas fa-book-open card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Receitas</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Total: {{ total_receitas }}</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Ativas: {{ receitas_ativas }}</p>
+                <a href="{% url 'receitas:listar_receitas' %}" class="mt-5 inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 btn hover:bg-blue-700">Gerenciar</a>
+            </div>
+            <!-- Fornadas -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Acompanhe a produção de fornadas">
+                <i class="fas fa-bread-slice card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Fornadas</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Total: {{ total_fornadas }}</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Hoje: {{ fornadas_hoje }}</p>
+                <a href="{% url 'fornadas:lista_fornadas' %}" class="mt-5 inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 btn hover:bg-blue-700">Ver Fornadas</a>
+            </div>
+            <!-- Produtos -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Gerencie os produtos disponíveis">
+                <i class="fas fa-box-open card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Produtos</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Total: {{ total_produtos }}</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Em Estoque: {{ produtos_em_estoque }}</p>
+                <a href="{% url 'produtos:lista_produtos' %}" class="mt-5 inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 btn hover:bg-blue-700">Gerenciar</a>
+            </div>
+            <!-- Clientes -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Gerencie os clientes cadastrados">
+                <i class="fas fa-users card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Clientes</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Total: {{ total_clientes }}</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Ativos: {{ clientes_ativos }}</p>
+                <a href="{% url 'clientes:listar_clientes' %}" class="mt-5 inline-block bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 btn hover:bg-green-700">Gerenciar</a>
+            </div>
+            <!-- Patrimônios -->
+            <div class="card metric-card fade-in p-8 tooltip" data-tooltip="Gerencie os bens da padaria">
+                <i class="fas fa-building card-icon text-gray-600"></i>
+                <h3 class="text-xl font-bold text-gray-700">Patrimônios</h3>
+                <p class="text-gray-600 mt-3 text-lg leading-relaxed">Valor Total: {{ total_patrimonios|floatformat:2 }} R$</p>
+                <p class="text-gray-600 text-lg leading-relaxed">Ativos: {{ patrimonios_ativos }}</p>
+                <a href="{% url 'patrimonios:lista_patrimonios' %}" class="mt-5 inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 btn hover:bg-blue-700">Gerenciar</a>
+            </div>
+        </div>
+
+        <!-- Atividades Recentes -->
+        <div class="recent-activity-card rounded-xl p-8">
+            <h3 class="text-xl font-bold text-gray-700 mb-6">Atividades Recentes</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Últimas Vendas -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-600 flex items-center"><i class="fas fa-shopping-cart mr-2 text-blue-500"></i>Últimas Vendas</h4>
+                    <ul class="mt-4 space-y-4">
+                        {% for venda in ultimas_vendas %}
+                            <li class="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg list-item">{{ venda.data_venda|date:"d/m/Y H:i" }} - {{ venda.cliente.nome|default:"Anônimo" }}: {{ venda.valor_total|floatformat:2 }} R$</li>
+                        {% empty %}
+                            <li class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg list-item">Nenhuma venda recente</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <!-- Últimas Compras -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-600 flex items-center"><i class="fas fa-shopping-bag mr-2 text-green-500"></i>Últimas Compras</h4>
+                    <ul class="mt-4 space-y-4">
+                        {% for compra in ultimas_compras %}
+                            <li class="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg list-item">{{ compra.data_compra|date:"d/m/Y H:i" }} - {{ compra.ingrediente.nome }}: {{ compra.quantidade_comprada }} x {{ compra.valor_unitario|floatformat:2 }} R$</li>
+                        {% empty %}
+                            <li class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg list-item">Nenhuma compra recente</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <!-- Últimas Fornadas -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-600 flex items-center"><i class="fas fa-bread-slice mr-2 text-yellow-500"></i>Últimas Fornadas</h4>
+                    <ul class="mt-4 space-y-4">
+                        {% for fornada in ultimas_fornadas %}
+                            <li class="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg list-item">{{ fornada.data_producao|date:"d/m/Y H:i" }} - {{ fornada.receita.nome }}: {{ fornada.quantidade_produzida }} fornada(s)</li>
+                        {% empty %}
+                            <li class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg list-item">Nenhuma fornada recente</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.15}s`; // Atraso progressivo para cada card
+            card.addEventListener('click', () => {
+                card.classList.add('scale-95', 'shadow-2xl');
+                setTimeout(() => {
+                    card.classList.remove('scale-95', 'shadow-2xl');
+                }, 200);
+            });
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('shadow-xl');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('shadow-xl');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,488 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content_title %}Dashboard Financeiro{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0; background: #f5f7fa; min-height: 100vh;">
+
+  <!-- Seção de Ações Rápidas -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h4 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center;">
+            <i class="bi bi-lightning-charge-fill me-2"></i> Ações Rápidas
+          </h4>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <div class="d-flex flex-wrap justify-content-around gap-3">
+            <a href="{% url 'financeiro:criar_venda' %}" class="btn btn-success btn-lg shadow-sm rounded-pill flex-grow-1" style="font-weight: 500; padding: 0.75rem 1.5rem; transition: all 0.3s ease;">
+              <i class="bi bi-cart-check me-1"></i> Cadastrar Venda
+            </a>
+            <a href="{% url 'financeiro:criar_compra' %}" class="btn btn-primary btn-lg shadow-sm rounded-pill flex-grow-1" style="font-weight: 500; padding: 0.75rem 1.5rem; transition: all 0.3s ease;">
+              <i class="bi bi-bag-check me-1"></i> Cadastrar Compra
+            </a>
+            <a href="{% url 'financeiro:criar_gasto' %}" class="btn btn-warning btn-lg shadow-sm rounded-pill flex-grow-1" style="font-weight: 500; padding: 0.75rem 1.5rem; transition: all 0.3s ease;">
+              <i class="bi bi-cash me-1"></i> Cadastrar Gasto
+            </a>
+            <a href="{% url 'financeiro:historico_transacoes' %}" class="btn btn-info btn-lg shadow-sm rounded-pill flex-grow-1" style="font-weight: 500; padding: 0.75rem 1.5rem; transition: all 0.3s ease;">
+              <i class="bi bi-clock-history me-1"></i> Ver Histórico
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Totais Financeiros -->
+  <div class="row mt-4 g-3">
+    <div class="col-md-3 col-sm-6">
+      <div class="card bg-success text-white shadow-lg" style="border-radius: 15px; transition: transform 0.3s ease;">
+        <div class="card-body text-center p-4">
+          <h5 class="card-title" style="font-size: 1.2rem; font-weight: 600;">Total de Vendas</h5>
+          <p class="card-text display-6">R$ {{ total_vendas|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card bg-primary text-white shadow-lg" style="border-radius: 15px; transition: transform 0.3s ease;">
+        <div class="card-body text-center p-4">
+          <h5 class="card-title" style="font-size: 1.2rem; font-weight: 600;">Total de Compras</h5>
+          <p class="card-text display-6">R$ {{ total_compras|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card bg-warning text-white shadow-lg" style="border-radius: 15px; transition: transform 0.3s ease;">
+        <div class="card-body text-center p-4">
+          <h5 class="card-title" style="font-size: 1.2rem; font-weight: 600;">Total de Gastos</h5>
+          <p class="card-text display-6">R$ {{ total_gastos|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card bg-{% if saldo_caixa >= 0 %}info{% else %}danger{% endif %} text-white shadow-lg" style="border-radius: 15px; transition: transform 0.3s ease;">
+        <div class="card-body text-center p-4">
+          <h5 class="card-title" style="font-size: 1.2rem; font-weight: 600;">Saldo do Caixa</h5>
+          <p class="card-text display-6">R$ {{ saldo_caixa|floatformat:2 }}</p>
+          {% if saldo_caixa < 0 %}
+            <small class="text-warning">Atenção: Saldo Negativo!</small>
+          {% else %}
+            <small class="text-success">Saldo Positivo</small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Relatório Diário -->
+  <div class="row mt-4 g-3">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h4 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center;">
+            <i class="bi bi-calendar-day me-2"></i> Relatório Diário
+          </h4>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="alert alert-success d-flex align-items-center" role="alert" style="transition: all 0.3s ease;">
+                <i class="bi bi-arrow-up-circle me-2 fs-4"></i>
+                <div>
+                  <h5>Entradas do Dia</h5>
+                  <p class="mb-0 fs-3">R$ {{ entradas_dia|floatformat:2 }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="alert alert-danger d-flex align-items-center" role="alert" style="transition: all 0.3s ease;">
+                <i class="bi bi-arrow-down-circle me-2 fs-4"></i>
+                <div>
+                  <h5>Saídas do Dia</h5>
+                  <p class="mb-0 fs-3">R$ {{ saidas_dia|floatformat:2 }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="alert alert-info d-flex align-items-center" role="alert" style="transition: all 0.3s ease;">
+                <i class="bi bi-wallet2 me-2 fs-4"></i>
+                <div>
+                  <h5>Saldo do Dia</h5>
+                  <p class="mb-0 fs-3">R$ {{ saldo_dia|floatformat:2 }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h5 class="mt-4">Resumo por Forma de Pagamento</h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover border rounded">
+              <thead class="table-light">
+                <tr>
+                  <th>Forma de Pagamento</th>
+                  <th>Total (R$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pagamento in pagamentos_resumo %}
+                <tr>
+                  <td>{{ pagamento.forma_pagamento_display|default:"Desconhecido" }}</td>
+                  <td>{{ pagamento.total|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">Nenhum pagamento registrado hoje.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Gráficos -->
+  <div class="row mt-4 g-3">
+    <!-- Gráfico de Distribuição Financeira (Barra) -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h5 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Distribuição Financeira</h5>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <canvas id="distribuicaoGastosChart" style="width: 100%; max-height: 300px;"></canvas>
+          <div id="distribuicaoGastosChartFallback" class="text-center text-muted d-none">Dados insuficientes para exibir o gráfico.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Gráfico de Tendência de Saldo e Gastos -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h5 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Tendência de Saldo e Gastos (7 Dias)</h5>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <canvas id="tendenciaSaldoChart" style="width: 100%; max-height: 300px;"></canvas>
+          <div id="tendenciaSaldoChartFallback" class="text-center text-muted d-none">Dados insuficientes para exibir o gráfico.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Gráfico de Distribuição por Forma de Pagamento -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h5 class="m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Vendas por Forma de Pagamento</h5>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          <canvas id="pagamentosChart" style="width: 100%; max-height: 300px;"></canvas>
+          <div id="pagamentosChartFallback" class="text-center text-muted d-none">Nenhum pagamento registrado para exibir o gráfico.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Compras -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient d-flex justify-content-between align-items-center text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h2 class="card-title m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Compras</h2>
+          <a href="{% url 'financeiro:criar_compra' %}" class="btn btn-primary btn-sm" style="font-weight: 500; padding: 0.5rem 1rem; transition: all 0.3s ease;">
+            <i class="bi bi-plus-circle me-1"></i> Nova Compra
+          </a>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          {% if compras_com_totais %}
+          <div class="table-responsive">
+            <table class="table table-striped table-hover border rounded">
+              <thead class="table-light">
+                <tr>
+                  <th>Ingrediente</th>
+                  <th>Quantidade</th>
+                  <th>Valor Unitário (R$)</th>
+                  <th>Total (R$)</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for compra in compras_com_totais %}
+                <tr>
+                  <td>{{ compra.ingrediente }}</td>
+                  <td>{{ compra.quantidade }}</td>
+                  <td>{{ compra.valor_unitario|floatformat:2 }}</td>
+                  <td>{{ compra.total|floatformat:2 }}</td>
+                  <td>{{ compra.data|date:"d/m/Y H:i" }}</td>
+                  <td>
+                    <a href="{% url 'financeiro:detalhes_compra' compra.pk %}" class="btn btn-info btn-sm">
+                      <i class="bi bi-eye"></i> Detalhes
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-center text-muted">Nenhuma compra registrada.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Gastos -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease;">
+        <div class="card-header bg-gradient d-flex justify-content-between align-items-center text-black" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px; padding: 1.5rem;">
+          <h2 class="card-title m-0" style="font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px;">Gastos</h2>
+          <a href="{% url 'financeiro:criar_gasto' %}" class="btn btn-primary btn-sm" style="font-weight: 500; padding: 0.5rem 1rem; transition: all 0.3s ease;">
+            <i class="bi bi-plus-circle me-1"></i> Novo Gasto
+          </a>
+        </div>
+        <div class="card-body p-4" style="background: #ffffff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+          {% if gastos %}
+          <div class="table-responsive">
+            <table class="table table-striped table-hover border rounded">
+              <thead class="table-light">
+                <tr>
+                  <th>Descrição</th>
+                  <th>Valor (R$)</th>
+                  <th>Data</th>
+                  <th>Categoria</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for gasto in gastos %}
+                <tr>
+                  <td>{{ gasto.descricao }}</td>
+                  <td>{{ gasto.valor|floatformat:2 }}</td>
+                  <td>{{ gasto.data|date:"d/m/Y H:i" }}</td>
+                  <td>{{ gasto.get_categoria_display }}</td>
+                  <td>
+                    <a href="{% url 'financeiro:editar_gasto' gasto.pk %}" class="btn btn-warning btn-sm me-2">
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <a href="{% url 'financeiro:deletar_gasto' gasto.pk %}" class="btn btn-danger btn-sm">
+                      <i class="bi bi-trash"></i> Deletar
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-center text-muted">Nenhum gasto registrado.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Dados para gráficos com validação e conversão explícita
+  const totalVendas = parseFloat('{{ total_vendas|floatformat:2 }}'.replace(',', '.')) || 0;
+  const totalCompras = parseFloat('{{ total_compras|floatformat:2 }}'.replace(',', '.')) || 0;
+  const totalGastos = parseFloat('{{ total_gastos|floatformat:2 }}'.replace(',', '.')) || 0;
+
+  // Conversão segura dos arrays
+  const saldoDiarioRaw = {{ saldo_diario|safe|default:'[]' }};
+  const gastosDiariosRaw = {{ gastos_diarios|safe|default:'[]' }};
+  const pagamentosResumoRaw = {{ pagamentos_resumo|safe|default:'[]' }};
+
+  const saldoDiario = Array.isArray(saldoDiarioRaw) ? saldoDiarioRaw.map(item => ({
+    data: item.data || 'Desconhecido',
+    saldo: parseFloat(item.saldo.toString().replace(',', '.')) || 0
+  })) : [];
+  const gastosDiarios = Array.isArray(gastosDiariosRaw) ? gastosDiariosRaw.map(item => ({
+    data: item.data || 'Desconhecido',
+    gasto: parseFloat(item.gasto.toString().replace(',', '.')) || 0
+  })) : [];
+  const pagamentosResumo = Array.isArray(pagamentosResumoRaw) ? pagamentosResumoRaw.map(item => ({
+    forma_pagamento: item.forma_pagamento_display || item.forma_pagamento || 'Desconhecido',
+    total: parseFloat(item.total.toString().replace(',', '.')) || 0
+  })) : [];
+
+  // Função auxiliar para verificar dados válidos
+  function isValidData(data, expectedKeys) {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    return data.every(item => 
+      expectedKeys.every(key => item.hasOwnProperty(key) && item[key] != null && !isNaN(item[key]))
+    );
+  }
+
+  // Gráfico de Distribuição Financeira (Barra)
+  const distribuicaoCanvas = document.getElementById('distribuicaoGastosChart');
+  const distribuicaoFallback = document.getElementById('distribuicaoGastosChartFallback');
+  if (totalVendas > 0 || totalCompras > 0 || totalGastos > 0) {
+    distribuicaoCanvas.style.display = 'block';
+    distribuicaoFallback.classList.add('d-none');
+    new Chart(distribuicaoCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['Vendas', 'Compras', 'Gastos'],
+        datasets: [{
+          label: 'Valores (R$)',
+          data: [totalVendas, totalCompras, totalGastos],
+          backgroundColor: ['#28a745', '#007bff', '#ffc107'],
+          borderColor: ['#1e7e34', '#0056b3', '#ff9800'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `R$ ${context.raw.toFixed(2)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Valor (R$)' }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  } else {
+    distribuicaoCanvas.style.display = 'none';
+    distribuicaoFallback.classList.remove('d-none');
+  }
+
+  // Gráfico de Tendência de Saldo e Gastos (Linha)
+  const tendenciaCanvas = document.getElementById('tendenciaSaldoChart');
+  const tendenciaFallback = document.getElementById('tendenciaSaldoChartFallback');
+  if (isValidData(saldoDiario, ['data', 'saldo']) && isValidData(gastosDiarios, ['data', 'gasto']) && saldoDiario.length === 7 && gastosDiarios.length === 7) {
+    tendenciaCanvas.style.display = 'block';
+    tendenciaFallback.classList.add('d-none');
+    new Chart(tendenciaCanvas, {
+      type: 'line',
+      data: {
+        labels: saldoDiario.map(d => d.data),
+        datasets: [
+          {
+            label: 'Saldo Diário',
+            data: saldoDiario.map(d => d.saldo),
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Gastos Diários',
+            data: gastosDiarios.map(d => d.gasto),
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: R$ ${context.raw.toFixed(2)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Valor (R$)' }
+          },
+          x: {
+            title: { display: true, text: 'Data' }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  } else {
+    tendenciaCanvas.style.display = 'none';
+    tendenciaFallback.classList.remove('d-none');
+  }
+
+  // Gráfico de Distribuição por Forma de Pagamento (Rosca)
+  const pagamentosCanvas = document.getElementById('pagamentosChart');
+  const pagamentosFallback = document.getElementById('pagamentosChartFallback');
+  if (isValidData(pagamentosResumo, ['forma_pagamento', 'total']) && pagamentosResumo.some(p => p.total > 0)) {
+    pagamentosCanvas.style.display = 'block';
+    pagamentosFallback.classList.add('d-none');
+    new Chart(pagamentosCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: pagamentosResumo.map(p => p.forma_pagamento),
+        datasets: [{
+          data: pagamentosResumo.map(p => p.total),
+          backgroundColor: ['#28a745', '#007bff', '#ffc107', '#dc3545', '#6c757d'],
+          borderColor: ['#1e7e34', '#0056b3', '#ff9800', '#c82333', '#5a6268'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const total = pagamentosResumo.reduce((sum, p) => sum + p.total, 0);
+                const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                return `${context.label}: R$ ${context.raw.toFixed(2)} (${percentage}%)`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  } else {
+    pagamentosCanvas.style.display = 'none';
+    pagamentosFallback.classList.remove('d-none');
+  }
+});
+</script>
+<style>
+  .card:hover { transform: translateY(-5px); transition: transform 0.3s ease; }
+  .btn:hover { background-color: #c82333; transition: background-color 0.3s ease; }
+  .table tr:hover { background-color: #f8f9fa; transition: background-color 0.3s ease; }
+  canvas { max-width: 100%; }
+  @media (max-width: 768px) {
+    .display-6 { font-size: 1.5rem; }
+    .fs-3 { font-size: 1.25rem; }
+    .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+    canvas { max-height: 250px; }
+  }
+</style>
+{% endblock %}

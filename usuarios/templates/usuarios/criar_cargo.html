@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block content_title %}Criar Cargo{% endblock %}
+{% block content %}
+<div class="container-fluid" style="width: 100%; padding-right: 0;">
+  <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <div class="card-header bg-gradient d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #dc3545, #e4606d); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+      <h5 class="text-white m-0" style="font-size: 1.3rem; font-weight: 600;">Criar Cargo</h5>
+    </div>
+    <div class="card-body p-4" style="background: #fff; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+      {% if messages %}
+      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="color: #000; border-radius: 10px; font-size: 1rem; font-weight: 400;">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success" style="color: #000; transition: all 0.3s ease;">
+          <i class="bi bi-save"></i> Salvar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<style>
+  .btn-success:hover { background: linear-gradient(45deg, #218838, #2eca5a); transform: translateY(-2px); }
+  @media (max-width: 768px) {
+    .card-body .btn { width: 100%; margin-bottom: 5px; }
+  }
+  @media (max-width: 576px) {
+    .card-header h5 { font-size: 1.2rem; }
+  }
+</style>
+{% endblock %}
