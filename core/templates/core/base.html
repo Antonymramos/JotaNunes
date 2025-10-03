@@ -6,17 +6,27 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>{% block page_title %}ERP Padaria{% endblock %}</title>
+    <title>{% block page_title %}ERP Jotanunes{% endblock %}</title>
 
     <!-- Bootstrap 5.3 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
     />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      integrity="sha384-..."
+      crossorigin="anonymous"
     />
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Google Fonts -->
     <link
@@ -28,21 +38,22 @@
     <style>
       :root {
         --primary-color: #bf0200;
-        --secondary-color: #e0c993;
-        --background-light: #edf0d1;
-        --background-secondary: #f2c04;
+        --secondary-color: #000000;
+        --background-light: #1a1a1a;
+        --alert-color: #800000;
+        --success-color: #28a745;
         --transition-speed: 0.3s;
       }
 
       body {
         font-family: "Poppins", sans-serif;
-        background-color: var(--background-light);
+        background: linear-gradient(135deg, var(--secondary-color), #333333);
         margin: 0;
-        height: 100vh;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        -webkit-overflow-scrolling: touch;
       }
 
       .sidebar {
@@ -54,9 +65,10 @@
         height: 100vh;
         padding: 20px;
         transition: transform var(--transition-speed) ease, width var(--transition-speed) ease;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         z-index: 1100;
         overflow-y: auto;
+        color: #fff;
       }
 
       .sidebar.active {
@@ -66,7 +78,7 @@
 
       @media (max-width: 480px) {
         .sidebar {
-          width: 200px; /* Slightly wider for better touch targets */
+          width: 200px;
           transform: translateX(-100%);
           visibility: hidden;
         }
@@ -85,28 +97,53 @@
         margin-bottom: 20px;
         justify-content: center;
       }
-
-      .sidebar .logo i {
-        font-size: 1.8rem;
-        color: var(--primary-color);
-      }
-
       .sidebar .logo h5 {
         margin: 0 5px;
         font-family: "Poppins", sans-serif;
         font-size: 1.4rem;
-        color: var(--primary-color);
+        color: #fff; 
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        transition: transform var(--transition-speed) ease, color var(--transition-speed) ease;
+        display: flex;
+        align-items: center;
+      }
+
+      .sidebar .logo h5:hover {
+        transform: translateY(-2px);
+        color:  #fff;
+      }
+
+      .sidebar .logo h5 i.bi-bell-fill {
+        margin-right: 8px;
+        font-size: 1.6rem;
+        color: #fff;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        transition: transform var(--transition-speed) ease, color var(--transition-speed) ease;
+        animation: pulse 2s infinite ease-in-out;
+      }
+
+      .sidebar .logo h5:hover i.bi-bell-fill {
+        transform: translateY(-2px);
+        color: #ff4d4d;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
       }
 
       .sidebar .nav-link {
-        color: #2e0000;
+        color: #fff;
+        text-decoration: none;
         border-radius: 8px;
         padding: 10px 12px;
         margin: 5px 0;
         transition: all var(--transition-speed) ease;
         display: flex;
         align-items: center;
-        touch-action: manipulation; /* Improves touch responsiveness */
+        touch-action: manipulation;
       }
 
       .sidebar .nav-link i {
@@ -116,14 +153,64 @@
 
       .sidebar .nav-link:hover,
       .sidebar .nav-link:focus {
-        background-color: rgba(224, 201, 147, 0.7);
+        background-color: rgba(191, 2, 0, 0.2);
         transform: translateX(5px);
+      }
+
+      .nav-link.alert {
+        position: relative;
+      }
+
+      .nav-link.alert::after {
+        content: "{% if ingredientes_alerta_count > 0 %}{{ ingredientes_alerta_count }}{% endif %}";
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        background-color: var(--primary-color);
+        color: #fff;
+        border-radius: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        min-width: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: all var(--transition-speed) ease;
+      }
+
+      @media (max-width: 1200px) {
+        .nav-link.alert::after {
+          width: 1.2rem;
+          height: 1.2rem;
+          font-size: 0.7rem;
+          right: 5px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .nav-link.alert::after {
+          width: 1rem;
+          height: 1rem;
+          font-size: 0.6rem;
+          right: 3px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .nav-link.alert::after {
+          width: 0.9rem;
+          height: 0.9rem;
+          font-size: 0.5rem;
+          right: 2px;
+        }
       }
 
       .content-wrapper {
         margin-left: 250px;
         padding: 20px;
-        height: 100vh;
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
@@ -148,7 +235,7 @@
       }
 
       .topbar {
-        background-color: #fff;
+        background-color: var(--secondary-color);
         border-radius: 12px;
         padding: 15px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -160,10 +247,16 @@
       }
 
       .topbar h2 {
-        font-family: "Poppins", sans-serif;
-        font-size: 1.8rem;
-        color: var(--primary-color);
+        
+        font-size: 2rem;
+        color: #fff;
         margin: 0;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
 
       .user-section {
@@ -173,7 +266,7 @@
       }
 
       .user-section span {
-        color: #555;
+        color: #fff;
         font-weight: 500;
       }
 
@@ -209,6 +302,7 @@
         text-decoration: none;
         transition: all var(--transition-speed) ease;
         font-size: 0.9rem;
+        animation: bounce 1s ease-in-out;
       }
 
       .alert-fixed-top .badge:hover,
@@ -217,11 +311,35 @@
         transform: translateY(-2px);
       }
 
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+
       .content {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .dashboard-card {
+        background: var(--alert-color);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform var(--transition-speed) ease;
+        animation: slideUp 0.5s ease-in-out;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-5px);
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       .sidebar-toggle {
@@ -284,6 +402,12 @@
         .sidebar.active .nav-link span {
           display: inline;
         }
+        .nav-link.alert::after {
+          width: 1.2rem;
+          height: 1.2rem;
+          font-size: 0.7rem;
+          right: 5px;
+        }
       }
 
       @media (max-width: 768px) {
@@ -292,6 +416,12 @@
         }
         .user-section .btn-danger {
           padding: 8px 15px;
+        }
+        .nav-link.alert::after {
+          width: 1rem;
+          height: 1rem;
+          font-size: 0.6rem;
+          right: 3px;
         }
       }
 
@@ -314,6 +444,12 @@
         }
         .alert-fixed-top {
           top: 60px;
+        }
+        .nav-link.alert::after {
+          width: 0.9rem;
+          height: 0.9rem;
+          font-size: 0.5rem;
+          right: 2px;
         }
       }
 
@@ -355,32 +491,16 @@
         }
       }
 
-      /* Heart design */
+      /* Heart design (opcional, pode remover se não usar) */
       .heart {
         position: relative;
         width: 18px;
         height: 18px;
-        background-color: #e0c993;
+        background-color: var(--secondary-color);
         transform: rotate(-45deg);
         margin: 0 5px;
       }
-      .heart:before,
-      .heart:after {
-        content: "";
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        background-color: #e0c993;
-        border-radius: 50%;
-      }
-      .heart:before {
-        top: -9px;
-        left: 0;
-      }
-      .heart:after {
-        left: 9px;
-        top: 0;
-      }
+      
       .sidebar .logo .heart {
         margin-left: 5px;
       }
@@ -394,53 +514,36 @@
 
       <div class="sidebar">
         <div class="logo">
-          <i class="bi bi-shop" aria-hidden="true"></i>
-          <h5>ERP Padaria<span class="heart"></span></h5>
+          <h5><i class="bi-bell-fill" aria-hidden="true"></i> Sistema de Alerta</h5>
         </div>
-        <hr style="border-color: rgba(46, 0, 0, 0.3)" />
+    
         <ul class="nav flex-column">
-          <li class="nav-item">
-            <a href="{% url 'clientes:listar_clientes' %}" class="nav-link" aria-label="Lista de Clientes">
-              <i class="bi bi-people" aria-hidden="true"></i>
-              <span>Lista de Clientes</span>
-            </a>
-          </li>
           <li class="nav-item">
             <a href="{% url 'core:dashboard' %}" class="nav-link" aria-label="Dashboard">
               <i class="bi bi-house-door" aria-hidden="true"></i>
-              <span>Dashboard</span>
+              <span>Painel De Gestão</span>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="{% url 'core:dashboard_estoques' %}" class="nav-link" aria-label="Estoques">
-              <i class="bi bi-boxes" aria-hidden="true"></i>
-              <span>Estoques</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{% url 'financeiro:dashboard_financeiro' %}" class="nav-link" aria-label="Financeiro">
-              <i class="bi bi-cash-coin" aria-hidden="true"></i>
-              <span>Financeiro</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{% url 'fornadas:lista_fornadas' %}" class="nav-link" aria-label="Fornadas">
-              <i class="bi bi-fire" aria-hidden="true"></i>
-              <span>Fornadas</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{% url 'produtos:lista_produtos' %}" class="nav-link" aria-label="Produtos">
-              <i class="bi bi-box-seam" aria-hidden="true"></i>
-              <span>Produtos</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{% url 'receitas:listar_receitas' %}" class="nav-link" aria-label="Receitas">
-              <i class="bi bi-journal-text" aria-hidden="true"></i>
-              <span>Receitas</span>
-            </a>
-          </li>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a href="{% url 'clientes:listar_clientes' %}" class="nav-link {% if ingredientes_alerta_count > 0 %}alert{% endif %}" aria-label="Lista de Clientes">
+                <i class="bi bi-people" aria-hidden="true"></i>
+                <span>Historico de Alertas</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'core:dashboard_estoques' %}" class="nav-link" aria-label="Estoques">
+                <i class="bi bi-boxes" aria-hidden="true"></i>
+                <span>Dependecias</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'financeiro:dashboard_financeiro' %}" class="nav-link" aria-label="Financeiro">
+                <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                <span>Relatorio Tecnico</span>
+              </a>
+            </li>
+          </ul>
         </ul>
       </div>
 
@@ -458,7 +561,9 @@
           {% endif %}
         </div>
 
-        <div class="content">{% block content %}{% endblock %}</div>
+        <div class="content">
+          {% block content %}{% endblock %}
+        </div>
       </div>
 
       {% if ingredientes_alerta_count > 0 %}
